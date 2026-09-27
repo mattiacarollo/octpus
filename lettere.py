@@ -3,6 +3,30 @@ import time
 import string
 import matplotlib.pyplot as plt
 
+def clean_text(filename):
+
+    start = "*** START OF THE PROJECT GUTENBERG EBOOK"
+    end = "*** END OF THE PROJECT GUTENBERG EBOOK"
+
+    testo_righe = []
+    leggi = not args.clean  # Se --clean è attivo aspetta di trovare il marcatore di inizio
+
+    with open(filename, "r", encoding="utf-8") as f:
+        for riga in f:
+            if args.clean:
+                if start in riga:
+                    leggi = True
+                    continue  # Salta la riga del marcatore
+                elif end in riga:
+                    break  # Si ferma appena trova il marcatore di fine
+
+            if leggi:
+                testo_righe.append(riga)
+
+    return "".join(testo_righe)
+
+
+
 def process_file(filename):
     start_time = time.time()
 
@@ -88,6 +112,11 @@ if __name__ == "__main__":
         dest = 'filepath',
     )
     parser.add_argument(
+        '-c', '--clean',
+        action = 'store_true',
+        help = 'Clean the .txt file from preambole, license...'
+    )
+    parser.add_argument(
         '--histl',
         action = 'store_true',
         help = 'Generate an histogram of the letters frequencies'
@@ -111,6 +140,9 @@ if __name__ == "__main__":
     if args.histw and not args.stats:
         parser.error("L'opzione --histw richiede che sia attiva anche l'opzione --stats.")
 
+    if args.clean:
+        args.filepath = clean_text(args.filepath)
+    
     letters_dict = process_file(args.filepath)
 
     if args.histl:
