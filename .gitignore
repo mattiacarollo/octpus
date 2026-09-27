@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# .png output
+Letters_histogram.png
+Words_histogram.png
