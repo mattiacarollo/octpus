@@ -10,23 +10,8 @@ def process_file(filename):
 
     with open(filename, "r", encoding="utf-8") as file:
         if args.stats:
-            num_lines = 0
-            num_words = 0
-            num_characters = 0
             for line in file:
-                num_lines += 1
-                parole = line.split()        # splitto la riga in parole
-                num_words += len(parole)
-                num_characters += len(line)
-
                 for char in line.lower():       # non mi interessa maiuscolo/minuscolo
-                    try:
-                        count_dict[char] += 1
-                    except KeyError:
-                        pass
-        else:
-            for line in file:
-                for char in line.lower():
                     try:
                         count_dict[char] += 1
                     except KeyError:
@@ -39,10 +24,7 @@ def process_file(filename):
     
     elapsed_time = time.time() - start_time
     print(f"Elapsed time: {elapsed_time:.2f} seconds")
-    if args.stats:
-        print(f"Number of lines: {num_lines}")
-        print(f"Number of words: {num_words}")
-        print(f"Number of characters: {num_characters}")
+
     return count_dict
 
 
@@ -54,9 +36,26 @@ def generate_histogram(count_dict):
     plt.show()
 
 
+def calculate_statistics(filename):
+
+    dict_words = {}
+
+    with open(filename, "r", encoding="utf-8") as file:
+            if args.stats:
+                num_lines = 0
+                num_words = 0
+                num_characters = 0
+                for line in file:
+                    num_lines += 1
+                    parole = line.split()        # splitto la riga in parole
+
+                    num_words += len(parole)
+                    num_characters += len(line)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description = "This program counts the relative frequencies of letters in a .txt file."
+        description = "This program counts the relative frequencies of letters and words and some others statistics in a .txt file."
     )
     parser.add_argument(
         '-i', '--input',
@@ -65,16 +64,29 @@ if __name__ == "__main__":
         dest = 'filepath',
     )
     parser.add_argument(
-        '--hist',
+        '--histl',
         type = bool,
-        help = 'If True, an histogram of the letter frequencies will be generated',
+        help = 'If True, an histogram of the letter frequencies will be generated'
     )
     parser.add_argument(
         '-s','--stats',
         type = bool,
         help = 'If True, the program will print the number of letters, words and lines of the input file',
     )
+    parser.add_argument(
+            '--histw',
+            type = bool,
+            help = 'If True, an histogram of the words frequencies will be generated. Requires --stats to be True as well.'
+        )
+    
     args = parser.parse_args()
+    if args.histw and not args.stats:
+        parser.error("L'opzione --histw richiede che sia attiva anche l'opzione --stats.")
+
     count_dict = process_file(args.filepath)
-    if args.hist:
+
+    if args.histl:
         generate_histogram(count_dict)
+
+    if args.stats:
+        calculate_statistics(args.filepath)
